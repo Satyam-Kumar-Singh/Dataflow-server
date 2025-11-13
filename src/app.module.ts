@@ -6,6 +6,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { validationSchema } from './config/validation';
 import appConfig from './config/app.config';
 import { DatabaseModule } from './infrastructure/database/database.module';
+import { IngestionModule } from './modules/ingestion/ingestion.module';
 
 @Module({
   imports: [
@@ -27,7 +28,9 @@ import { DatabaseModule } from './infrastructure/database/database.module';
       }),
     }),
     DatabaseModule,
+    IngestionModule
   ],
+  controllers: [],
   providers: [
     {
       provide: APP_GUARD,
