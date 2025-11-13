@@ -1,9 +1,10 @@
 import { Global, Module } from "@nestjs/common";
-import { DatabaseService } from "./database.service";
+import { PostgresClient } from "./postgres.client";
+import { PgVectorRepository } from "./pgvector.repository";
 
 @Global()
 @Module({
-    providers: [DatabaseService],
-    exports: [DatabaseService]
+    providers: [PostgresClient, PgVectorRepository],
+    exports: [PostgresClient, PgVectorRepository]
 })
 export class DatabaseModule { }

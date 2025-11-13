@@ -3,9 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { Pool, PoolClient, QueryResult } from 'pg';
 
 @Injectable()
-export class DatabaseService implements OnModuleInit, OnModuleDestroy {
+export class PostgresClient implements OnModuleInit, OnModuleDestroy {
   private pool: Pool;
-  private readonly logger = new Logger(DatabaseService.name);
+  private readonly logger = new Logger(PostgresClient.name);
 
   constructor(private readonly configService: ConfigService) {}
 
