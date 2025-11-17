@@ -9,10 +9,12 @@ export class PgVectorRepository {
 
     constructor(private readonly db: PostgresClient) { }
 
-    async createTable(tableName: string) {
+    async createTable(tableName?: string) {
         const sqlFile = path.join(__dirname, 'sql/create_table.sql');
         let sql = fs.readFileSync(sqlFile, 'utf-8');
-        sql = sql.replace(/knowledge/g, tableName);
+        if (tableName) {
+            sql = sql.replace(/knowledge/g, tableName);
+        }
 
         try {
             await this.db.query(sql);
@@ -29,6 +31,15 @@ export class PgVectorRepository {
       VALUES ($1, $2, $3)
       RETURNING id;
     `;
-        await this.db.query(sql, [content, embedding, metadata]);
+        const embeddingStr = JSON.stringify(embedding); // Convert array to string
+        await this.db.query(sql, [content, embeddingStr, metadata]);
+    }
+
+    /**
+     * Count stored embeddings (optional helper)
+     */
+    async countEmbeddings(): Promise<number> {
+        const result = await this.db.query(`SELECT COUNT(*) FROM knowledge`);
+        return parseInt(result.rows[0].count, 10);
     }
 }

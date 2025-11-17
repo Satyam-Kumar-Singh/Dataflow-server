@@ -2,14 +2,22 @@ import { Controller, Post, UploadedFile, UseInterceptors, Body } from '@nestjs/c
 import { FileInterceptor } from '@nestjs/platform-express';
 import { IngestionService } from './ingestion.service';
 
-@Controller('ingestion')
+@Controller('api/v1/ingestion')
 export class IngestionController {
-  constructor(private readonly ingestionService: IngestionService) {}
+    constructor(private readonly ingestionService: IngestionService) { }
 
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: any) {
-    const { tableName, url } = body;
-    return this.ingestionService.processInput({ file, url, tableName });
-  }
+    /**
+    * Accepts PDF/DOCX/TXT upload or URL for ingestion.
+    */
+    @Post('upload')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadFile(
+        @UploadedFile() file?: Express.Multer.File,
+        @Body('url') url?: string,
+    ) {
+        if (!file && !url) {
+            throw new Error('Either file or URL must be provided');
+        }
+        return this.ingestionService.processInput({ file, url });
+    }
 }

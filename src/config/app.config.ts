@@ -12,4 +12,6 @@ export default () => ({
   corsOrigin: process.env.CORS_ORIGIN || '*',
   RATE_LIMIT_TTL: parseInt(process.env.RATE_LIMIT_TTL || '60', 10), // in seconds
   RATE_LIMIT_MAX: parseInt(process.env.RATE_LIMIT_MAX || '20', 10), // max requests per TTL
+
+  openaiApiKey: process.env.OPENAI_API_KEY || '',
 });
