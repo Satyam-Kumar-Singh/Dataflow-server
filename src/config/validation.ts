@@ -13,4 +13,5 @@ export const validationSchema = Joi.object({
   CORS_ORIGIN: Joi.string().default('*'),
   RATE_LIMIT_TTL: Joi.number().default(60),
   RATE_LIMIT_MAX: Joi.number().default(20),
+  OPENAI_API_KEY: Joi.string().required(),
 });

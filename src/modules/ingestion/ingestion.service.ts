@@ -6,36 +6,51 @@ import { EmbeddingUtil } from './utils/embedding.util';
 
 @Injectable()
 export class IngestionService {
-  private readonly logger = new Logger(IngestionService.name);
+    private readonly logger = new Logger(IngestionService.name);
 
-  constructor(
-    private readonly pgVectorRepo: PgVectorRepository,
-    private readonly loader: DocumentLoaderUtil,
-    private readonly splitter: TextSplitterUtil,
-    private readonly embedder: EmbeddingUtil
-  ) {}
+    constructor(
+        private readonly pgVectorRepo: PgVectorRepository,
+        private readonly loader: DocumentLoaderUtil,
+        private readonly splitter: TextSplitterUtil,
+        private readonly embedder: EmbeddingUtil
+    ) { }
 
-  async processInput({ file, url, tableName }: { file?: Express.Multer.File; url?: string; tableName: string }) {
-    this.logger.log('Starting ingestion...');
+    async processInput({ file, url }: { file?: Express.Multer.File; url?: string }) {
+        this.logger.log('🚀 Ingestion started...');
 
-    // 1. Load document(s)
-    const docs = await this.loader.load(file, url);
+        // 1️⃣ Load document
+        const docs = await this.loader.load(file, url);
+        this.logger.log(`Loaded ${docs.length} document(s)`);
 
-    // 2. Split into chunks
-    const chunks = this.splitter.split(docs);
+        // 2️⃣ Split text into chunks
+        const chunks = await this.splitter.split(docs);
+        this.logger.log(`Split into ${chunks.length} chunks`);
 
-    // 3. Generate embeddings
-    const embeddedData = await this.embedder.embed(chunks);
+        // 3️⃣ Generate embeddings
+        const embeddedData = await this.embedder.embed(chunks);
+        this.logger.log(`Generated ${embeddedData.length} embeddings`);
 
-    // 4. Create table if not exist
-    await this.pgVectorRepo.createTable(tableName);
+        // 4️⃣ Ensure table exists
+        const tableName = 'knowledge'; // You can make this dynamic if needed
+        // await this.pgVectorRepo.createTable(tableName);
 
-    // 5. Store embeddings in DB
-    for (const item of embeddedData) {
-      await this.pgVectorRepo.insertEmbedding(tableName, item.text, item.embedding, { source: file?.originalname || url });
+        // 5️⃣ Store embeddings in DB
+        for (const item of embeddedData) {
+            await this.pgVectorRepo.insertEmbedding(
+                tableName,
+                item.text,
+                item.embedding,
+                {
+                    source: file?.originalname || url || 'unknown',
+                }
+            );
+        }
+
+        // 6️⃣ Return preview
+        return {
+            message: '✅ Ingestion completed successfully',
+            totalChunks: embeddedData.length,
+            sample: embeddedData.slice(0, 2), // just preview
+        };
     }
-
-    this.logger.log(`✅ Ingestion completed for ${tableName}`);
-    return { message: 'Ingestion completed', records: embeddedData.length };
-  }
 }
