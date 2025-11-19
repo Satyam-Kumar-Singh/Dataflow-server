@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PgVectorRepository } from 'src/infrastructure/database/pgvector.repository';
 import { DocumentLoaderUtil } from './utils/document-loader.util';
 import { TextSplitterUtil } from './utils/splitter.util';
-import { EmbeddingUtil } from './utils/embedding.util';
+import { EmbeddingService } from '../embedding/embedding.service';
 
 @Injectable()
 export class IngestionService {
@@ -12,7 +12,7 @@ export class IngestionService {
         private readonly pgVectorRepo: PgVectorRepository,
         private readonly loader: DocumentLoaderUtil,
         private readonly splitter: TextSplitterUtil,
-        private readonly embedder: EmbeddingUtil
+        private readonly embedder: EmbeddingService
     ) { }
 
     async processInput({ file, url }: { file?: Express.Multer.File; url?: string }) {
@@ -27,7 +27,7 @@ export class IngestionService {
         this.logger.log(`Split into ${chunks.length} chunks`);
 
         // 3️⃣ Generate embeddings
-        const embeddedData = await this.embedder.embed(chunks);
+        const embeddedData = await this.embedder.embedDocuments(chunks);
         this.logger.log(`Generated ${embeddedData.length} embeddings`);
 
         // 4️⃣ Ensure table exists

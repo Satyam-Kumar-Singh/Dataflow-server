@@ -7,6 +7,7 @@ import { validationSchema } from './config/validation';
 import appConfig from './config/app.config';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { IngestionModule } from './modules/ingestion/ingestion.module';
+import { EmbeddingModule } from './modules/embedding/embedding.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { IngestionModule } from './modules/ingestion/ingestion.module';
       }),
     }),
     DatabaseModule,
+    EmbeddingModule,
     IngestionModule
   ],
   controllers: [],
