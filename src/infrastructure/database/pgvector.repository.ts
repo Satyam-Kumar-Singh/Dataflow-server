@@ -42,4 +42,23 @@ export class PgVectorRepository {
         const result = await this.db.query(`SELECT COUNT(*) FROM knowledge`);
         return parseInt(result.rows[0].count, 10);
     }
+
+    async searchSimilar(queryEmbedding: number[], k: number) {
+        const query = `
+            SELECT 
+            id,
+            content,
+            metadata,
+            embedding <-> $1 AS distance
+            FROM knowledge
+            ORDER BY embedding <-> $1
+            LIMIT $2;
+        `;
+
+        const params = [queryEmbedding, k];
+        const result = await this.db.query(query, params);
+
+        return result.rows;
+    }
+
 }
